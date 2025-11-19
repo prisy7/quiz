@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Hardware - Avaliação de Conhecimento</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .quiz-container {
+            padding: 30px;
+        }
+
+        .student-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #3498db;
+        }
+
+        .student-info input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 8px;
+            transition: border-color 0.3s;
+        }
+
+        .student-info input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .question {
+            background: #f8f9fa;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #e74c3c;
+            transition: transform 0.2s;
+        }
+
+        .question:hover {
+            transform: translateY(-2px);
+        }
+
+        .question-number {
+            font-weight: bold;
+            color: #e74c3c;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 12px 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            background: #e8f4fc;
+            border-color: #3498db;
+        }
+
+        .option.selected {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        #saveBtn {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        #saveBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        #resetBtn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        #resetBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #f39c12;
+            display: none;
+        }
+
+        .results h3 {
+            color: #f39c12;
+            margin-bottom: 15px;
+        }
+
+        .answers-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .answer-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 8px;
+        }
+
+        .answer-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            border-radius: 4px;
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .quiz-container {
+                padding: 20px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖥️ Quiz de Hardware</h1>
+            <p>Avaliação de Conhecimento - Componentes de Computador</p>
+        </div>
+        
+        <div class="quiz-container">
+            <div class="student-info">
+                <label for="studentName">
+                    <strong>Nome da Aluna:</strong>
+                </label>
+                <input type="text" id="studentName" placeholder="Digite seu nome completo">
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            
+            <div id="questionsContainer">
+                <!-- As questões serão inseridas aqui via JavaScript -->
+            </div>
+            
+            <div class="controls">
+                <button id="saveBtn">💾 Salvar Respostas</button>
+                <button id="resetBtn">🔄 Limpar Tudo</button>
+            </div>
+            
+            <div class="results" id="results">
+                <h3>📊 Respostas Salvas</h3>
+                <div class="answers-list" id="answersList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Qual é a função principal da Placa-Mãe em um computador?",
+                options: [
+                    "Fornecer energia estável para todos os componentes.",
+                    "Executar os programas e aplicativos do usuário.",
+                    "Interligar e gerenciar o fluxo de dados entre todos os componentes.",
+                    "Armazenar permanentemente o sistema operacional."
+                ],
+                correct: 2
+            },
+            {
+                question: "Se um usuário deseja montar um PC compacto (Small Form Factor), qual padrão de Placa-Mãe seria mais adequado?",
+                options: [
+                    "ATX",
+                    "BTX", 
+                    "Micro-ATX ou Mini-ITX",
+                    "E-ATX"
+                ],
+                correct: 2
+            },
+            {
+                question: "O que o Socket da CPU define de maneira crucial?",
+                options: [
+                    "A velocidade máxima da memória RAM.",
+                    "A compatibilidade física e elétrica entre a Placa-Mãe e o Processador.",
+                    "O número de portas USB disponíveis no computador.",
+                    "A potência da fonte de alimentação necessária."
+                ],
+                correct: 1
+            },
+            {
+                question: "O Chipset da Placa-Mãe é responsável por controlar a comunicação de dados e definir características como:",
+                options: [
+                    "A marca do monitor e a qualidade do som.",
+                    "A geração de CPU suportada, a velocidade da RAM e o número de portas de expansão.",
+                    "A paleta de cores do gabinete e a voltagem da rede elétrica.",
+                    "O preço do sistema operacional no varejo."
+                ],
+                correct: 1
+            },
+            {
+                question: "Para que é utilizado principalmente o slot de expansão PCI Express x16?",
+                options: [
+                    "Para instalar memória RAM adicional.",
+                    "Para conectar a Placa de Vídeo (GPU).",
+                    "Para instalar um disco rígido SSD SATA.",
+                    "Para conectar o cabo de força da fonte."
+                ],
+                correct: 1
+            },
+            {
+                question: "O que é o BIOS/UEFI?",
+                options: [
+                    "Um tipo de memória RAM de alta velocidade.",
+                    "O software de sistema que inicia o computador e faz o teste inicial do hardware.",
+                    "Um conector específico para teclados e mouses antigos.",
+                    "Um tipo de processador secundário."
+                ],
+                correct: 1
+            },
+            {
+                question: "Na analogia usada no material, o que os 'Núcleos' de uma CPU representam?",
+                options: [
+                    "A velocidade de clock medida em GHz.",
+                    "A memória cache de nível L3.",
+                    "'Cérebros' independentes que permitem o processamento paralelo de tarefas.",
+                    "A quantidade de calor que o processador dissipa."
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual é a principal característica da Memória RAM que a diferencia do armazenamento (HDD/SSD)?",
+                options: [
+                    "Ela é mais barata por Gigabyte.",
+                    "Ela é volátil, perdendo os dados quando o computador é desligado.",
+                    "Ela possui uma interface de conexão do tipo M.2.",
+                    "Ela é usada apenas para armazenar fotos e documentos."
+                ],
+                correct: 1
+            },
+            {
+                question: "A técnica 'Dual Channel' aplicada à memória RAM tem que objetivo?",
+                options: [
+                    "Diminuir o consumo de energia do sistema.",
+                    "Aumentar a capacidade total de armazenamento.",
+                    "Dobrar a banda de dados entre a RAM e a CPU, aumentando o desempenho.",
+                    "Permitir o uso de módulos de RAM de marcas diferentes."
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual é a grande vantagem prática de migrar o Sistema Operacional de um HDD para um SSD (SATA ou NVMe)?",
+                options: [
+                    "Aumento drástico na velocidade de inicialização e resposta do sistema.",
+                    "Aumento significativo na capacidade de armazenamento.",
+                    "Melhoria na qualidade gráfica dos jogos.",
+                    "Redução no consumo elétrico total do PC."
+                ],
+                correct: 0
+            },
+            {
+                question: "Por que a Fonte de Alimentação (PSU) é considerada um componente vital e que não deve ser economizado?",
+                options: [
+                    "Porque ela define a velocidade de processamento da CPU.",
+                    "Porque uma fonte de baixa qualidade pode colocar todo o hardware em risco, não fornecendo energia estável e filtrada.",
+                    "Porque ela determina a resolução máxima da tela.",
+                    "Porque ela é o componente mais caro do computador."
+                ],
+                correct: 1
+            },
+            {
+                question: "O que a certificação '80 Plus' (Bronze, Gold, etc.) indica sobre uma Fonte de Alimentação?",
+                options: [
+                    "Sua potência máxima em Watts.",
+                    "Sua eficiência energética, ou seja, o quanto ela desperdiça menos energia na forma de calor.",
+                    "O número de conectores PCIe que ela possui.",
+                    "A garantia oferecida pelo fabricante."
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual a principal diferença funcional entre uma GPU Integrada e uma GPU Dedicada?",
+                options: [
+                    "A GPU Integrada é mais potente para jogos.",
+                    "A GPU Dedicada é um processador especializado, com sua própria VRAM, oferecendo muito mais poder para gráficos, jogos e aplicações pesadas.",
+                    "A GPU Dedicada só funciona com processadores Intel.",
+                    "A GPU Integrada não consome energia da fonte."
+                ],
+                correct: 1
+            },
+            {
+                question: "O que a VRAM (Vídeo RAM) faz?",
+                options: [
+                    "É a memória de sistema principal, compartilhada com a CPU.",
+                    "Armazena permanentemente os jogos e aplicativos.",
+                    "É uma memória dedicada à Placa de Vídeo, usada para armazenar texturas e dados gráficos.",
+                    "Controla a ventilação e a temperatura do gabinete."
+                ],
+                correct: 2
+            }
+        ];
+
+        let studentAnswers = new Array(questions.length).fill(null);
+
+        function initializeQuiz() {
+            const container = document.getElementById('questionsContainer');
+            
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <div class="question-number">Questão ${index + 1} de ${questions.length}</div>
+                    <div class="question-text">${q.question}</div>
+                    <div class="options">
+                        ${q.options.map((option, optIndex) => `
+                            <div class="option" data-question="${index}" data-option="${optIndex}">
+                                ${String.fromCharCode(65 + optIndex)}) ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+
+            // Adicionar event listeners para as opções
+            document.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionIndex = parseInt(this.getAttribute('data-question'));
+                    const optionIndex = parseInt(this.getAttribute('data-option'));
+                    
+                    // Remover seleção anterior nesta questão
+                    const options = this.parentElement.querySelectorAll('.option');
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Selecionar nova opção
+                    this.classList.add('selected');
+                    
+                    // Salvar resposta
+                    studentAnswers[questionIndex] = optionIndex;
+                    updateProgress();
+                });
+            });
+
+            // Event listeners para os botões
+            document.getElementById('saveBtn').addEventListener('click', saveAnswers);
+            document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+        }
+
+        function updateProgress() {
+            const answered = studentAnswers.filter(answer => answer !== null).length;
+            const progress = (answered / questions.length) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
+
+        function saveAnswers() {
+            const studentName = document.getElementById('studentName').value.trim();
+            
+            if (!studentName) {
+                alert('Por favor, digite o nome da aluna antes de salvar.');
+                return;
+            }
+
+            const unanswered = studentAnswers.filter(answer => answer === null).length;
+            if (unanswered > 0) {
+                if (!confirm(`${unanswered} questão(ões) não foram respondidas. Deseja salvar mesmo assim?`)) {
+                    return;
+                }
+            }
+
+            // Mostrar resultados
+            const resultsDiv = document.getElementById('results');
+            const answersList = document.getElementById('answersList');
+            
+            answersList.innerHTML = `
+                <div class="answer-item">
+                    <strong>Aluna:</strong> ${studentName}<br>
+                    <strong>Data:</strong> ${new Date().toLocaleString('pt-BR')}<br>
+                    <strong>Progresso:</strong> ${questions.length - unanswered}/${questions.length} questões respondidas
+                </div>
+            `;
+
+            questions.forEach((q, index) => {
+                const answer = studentAnswers[index];
+                const answerItem = document.createElement('div');
+                answerItem.className = 'answer-item';
+                
+                let answerText = 'Não respondida';
+                let answerClass = 'not-answered';
+                
+                if (answer !== null) {
+                    answerText = `${String.fromCharCode(65 + answer)}) ${q.options[answer]}`;
+                    answerClass = answer === q.correct ? 'correct' : 'incorrect';
+                }
+                
+                answerItem.innerHTML = `
+                    <strong>Questão ${index + 1}:</strong> ${q.question}<br>
+                    <strong style="color: ${answerClass === 'correct' ? 'green' : answerClass === 'incorrect' ? 'red' : 'orange'}">
+                        Resposta: ${answerText}
+                    </strong>
+                `;
+                
+                answersList.appendChild(answerItem);
+            });
+
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+
+            // Aqui você pode adicionar código para enviar os dados para um servidor
+            console.log('Respostas salvas:', {
+                studentName: studentName,
+                answers: studentAnswers,
+                timestamp: new Date().toISOString()
+            });
+
+            alert('Respostas salvas com sucesso! Role para baixo para ver o resumo.');
+        }
+
+        function resetQuiz() {
+            if (confirm('Tem certeza que deseja limpar todas as respostas?')) {
+                studentAnswers = new Array(questions.length).fill(null);
+                document.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                document.getElementById('studentName').value = '';
+                document.getElementById('results').style.display = 'none';
+                updateProgress();
+            }
+        }
+
+        // Inicializar o quiz quando a página carregar
+        document.addEventListener('DOMContentLoaded', initializeQuiz);
+    </script>
+</body>
+</html>
